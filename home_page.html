@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #fffafa;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 500px;
+            animation: fadeIn 1s ease-in-out;
+            text-align: center;
+        }
+
+        #newInput {
+            margin-top: 10px;
+        }
+
+        .file {
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        input[type="file"] {
+            font-size: 16px;
+            padding: 10px;
+            box-shadow: 10px solid #000000;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            color: #000000;
+            cursor: pointer;
+            transition: 0.8s;
+            width: 220px;
+        }
+
+        input[type="file"]:hover {
+            background: linear-gradient(to right, #4a7682, #8294aa);
+            transition: 0.5s;
+            color: white;
+            border-color: #6f6f6f;
+            box-shadow: 10px black;
+        }
+
+        label {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        input[type="text"] {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            padding: 8px 12px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            width: 60%;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus {
+            border-color: #0056b3;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <form action="{{url_for('upload')}}" method="POST" enctype="multipart/form-data">
+        <div class="container">
+        <h1>Image Label</h1>
+        <label for="">Select only image:</label>
+        <input type="file" id="fileInput" name="image" accept=".jpg,.jpeg" class="file" />
+        <p id="fileInfo"></p>
+        <div id="newInput" style="display: none;">
+            <label for="textInput">Enter Label:</label>
+            <input type="text" id="textInput" name="label" placeholder="Enter Label here" required>
+            <input type="submit" value="Upload">
+        </div>
+    </div>
+</form>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const newInput = document.getElementById('newInput');
+
+        fileInput.addEventListener('change', function () {
+            const file = fileInput.files[0];
+            if (file) {
+                const validExtensions = ['image/jpeg', 'image/jpg'];
+                if (validExtensions.includes(file.type)) {
+                    fileInfo.textContent = `File selected: ${file.name} (${file.type})`;
+                    newInput.style.display = 'block';
+                } else {
+                    fileInfo.textContent = "Invalid file type. Please select a JPG or JPEG image.";
+                    fileInput.value = "";
+                    newInput.style.display = 'none';
+                }
+            } else {
+                fileInfo.textContent = "No file selected.";
+                newInput.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>
