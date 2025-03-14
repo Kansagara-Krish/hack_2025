@@ -1,5 +1,4 @@
-
-from flask import Flask, request, render_template, send_file,url_for
+from flask import Flask, request, render_template, send_file
 from PIL import Image, ImageDraw, ImageFont
 import os
 
@@ -20,25 +19,42 @@ def upload():
     image_file = request.files["image"]
     label = request.form["label"]
     
-    # Save the uploaded image temporarily
-    image_path = os.path.join(UPLOAD_FOLDER, image_file.filename)
-    image_file.save(image_path)
+    # Open the image and prepare it for processing
+    original_image = Image.open(image_file)
+    angles = [0, 30, 60, 90, 120, 150, 180]  # Rotation angles
+    saved_file_paths = []  # To store paths of saved images
 
-    # Open the image and draw the label
-    image = Image.open(image_path)
-    draw = ImageDraw.Draw(image)
+    # Counter for sequential labeling
+    counter = 1
 
-    # Customize your font path if needed
-    font = ImageFont.load_default()
-    text_position = (300, 50)  # Adjust as needed
-    draw.text(text_position, label, fill="red", font=font)
+    for angle in angles:
+        # Rotate the image
+        rotated_image = original_image.rotate(angle, expand=True)
+        
+        # Draw the label on the rotated image
+        draw = ImageDraw.Draw(rotated_image)
+        font = ImageFont.truetype("arial.ttf", size=80)
+        padding = 40
+        text_position = (padding, padding)  # Place the label with padding
+        draw.text(text_position, f"{label}_{counter}", fill="white", font=font)
 
-    # Save the labeled image
-    labeled_image_path = os.path.join(UPLOAD_FOLDER, "labeled_" + image_file.filename)
-    image.save(labeled_image_path)
+        # Generate a unique filename for each rotated image
+        labeled_image_path = os.path.join(
+            UPLOAD_FOLDER, f"labeled_{counter}_{image_file.filename}"
+        )
+        
+        # Save the labeled image
+        rotated_image.save(labeled_image_path)
+        saved_file_paths.append(labeled_image_path)  # Keep track of saved images
+        
+        counter += 1  # Increment the counter for the next label
 
-    # Serve the labeled image back to the user
-    return send_file(labeled_image_path, as_attachment=True)
+    # Return the last saved image to the client for download
+    return send_file(
+        saved_file_paths[-1],  # Send the last image in the loop
+        as_attachment=True,
+        download_name=f"labeled_{counter - 1}_{image_file.filename}"
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
